@@ -16,6 +16,7 @@ def create_app():
     init_db(app)
     app.register_blueprint(auth_bp)
     app.register_blueprint(errors_bp)
+
     
 
     @app.route("/home")
@@ -23,7 +24,7 @@ def create_app():
     @app.route("/page_2")
     @app.route("/")
     @login_required
-    def index():
+    def index(): 
         return render_template("index.html")
     
     
