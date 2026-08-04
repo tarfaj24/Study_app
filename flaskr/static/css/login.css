@@ -1,0 +1,179 @@
+/* ==========================================================
+   Learning App — Login Page Styles
+   ========================================================== */
+
+:root {
+    --learn-primary: #4f46e5;      /* indigo — hlavná akčná farba */
+    --learn-primary-dark: #4338ca;
+    --learn-secondary: #f59e0b;    /* teplá akcentová (žltá/oranžová) */
+    --learn-bg-start: #eef2ff;
+    --learn-bg-end: #fdf4e7;
+    --learn-text: #1e1b4b;
+    --learn-muted: #6b7280;
+    --learn-error: #dc2626;
+    --learn-radius: 16px;
+}
+
+/* ---------- Základné pozadie ---------- */
+body {
+    min-height: 100vh;
+    margin: 0;
+    font-family: "Poppins", "Segoe UI", system-ui, sans-serif;
+    background: linear-gradient(135deg, var(--learn-bg-start) 0%, var(--learn-bg-end) 100%);
+    color: var(--learn-text);
+}
+
+/* ---------- Navbar ---------- */
+#main_nav {
+    background-color: #ffffff !important;
+    box-shadow: 0 2px 10px rgba(79, 70, 229, 0.08);
+    padding: 0.75rem 1.5rem;
+}
+
+#logo {
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: var(--learn-primary) !important;
+    letter-spacing: 0.5px;
+}
+
+#main_nav .nav-link {
+    font-weight: 500;
+    color: var(--learn-text) !important;
+    margin: 0 0.25rem;
+    border-radius: 8px;
+    padding: 0.4rem 0.9rem !important;
+    transition: all 0.2s ease;
+}
+
+#main_nav .nav-link:hover {
+    background-color: var(--learn-bg-start);
+    color: var(--learn-primary) !important;
+}
+
+#main_nav .nav-link.active {
+    background-color: var(--learn-primary);
+    color: #ffffff !important;
+}
+
+/* ---------- Hlavný obsah / centrovanie formulára ---------- */
+main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 80px);
+    padding: 2rem 1rem;
+}
+
+/* ---------- Login karta ---------- */
+main .container {
+    max-width: 420px;
+    width: 100%;
+}
+
+form {
+    background: #ffffff;
+    border-radius: var(--learn-radius);
+    padding: 2.5rem 2.25rem;
+    box-shadow: 0 10px 30px rgba(79, 70, 229, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04);
+    position: relative;
+    overflow: hidden;
+}
+
+/* dekoratívny pásik hore, evokuje "zošit" */
+form::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--learn-primary), var(--learn-secondary));
+}
+
+/* jednoduchý nadpis nad formulárom (voliteľné, ak ho pridáš do HTML) */
+form::after {
+    content: "📚 Prihlásenie";
+    display: block;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--learn-primary);
+    margin-bottom: 1.75rem;
+    order: -1;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ---------- Polia formulára ---------- */
+.form-label {
+    font-weight: 600;
+    color: var(--learn-text);
+    margin-bottom: 0.4rem;
+    font-size: 0.92rem;
+}
+
+.form-control {
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 0.65rem 0.9rem;
+    font-size: 1rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background-color: #f9fafb;
+}
+
+.form-control:focus {
+    border-color: var(--learn-primary);
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
+    background-color: #ffffff;
+    outline: none;
+}
+
+.mb-3 {
+    margin-bottom: 1.25rem !important;
+}
+
+/* ---------- Chybová hláška ---------- */
+#error_message {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 0.6rem 0.9rem;
+    font-size: 0.9rem;
+    color: var(--learn-error);
+    margin-bottom: 1rem;
+}
+
+/* ---------- Tlačidlo ---------- */
+.btn-primary {
+    background: linear-gradient(135deg, var(--learn-primary), var(--learn-primary-dark));
+    border: none;
+    border-radius: 10px;
+    padding: 0.7rem 1rem;
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.3px;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(79, 70, 229, 0.35);
+    background: linear-gradient(135deg, var(--learn-primary-dark), var(--learn-primary));
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+/* ---------- Responzivita ---------- */
+@media (max-width: 480px) {
+    form {
+        padding: 2rem 1.5rem;
+        border-radius: 12px;
+    }
+}

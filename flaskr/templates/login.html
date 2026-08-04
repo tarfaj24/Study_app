@@ -1,4 +1,4 @@
-{% extends "layout.html" %}
+{% extends "layout_form.html" %}
 
 {% block navigation %}
     <nav class="navbar navbar-expand-lg bg-body-tertiary" id = "main_nav">
@@ -27,10 +27,10 @@
             <form action="/login" method="POST" class = "needs-validation" novalidate >
                 <div class="mb-3">
                     <label for="username" class="form-label">Username</label>
-                    <input type="text" class="form-control" id="username" aria-describedby="username" name = "username" required>
+                    <input type="text" class="form-control" id="username" aria-describedby="username" name = "username" autocomplete="off" autocapitalize="off" required>
                 </div>
                 <div class="mb-3">
-                    <label for="password" class="form-label">Password</label>
+                    <label for="password" class="form-label" autocomplete="off">Password</label>
                     <input type="password" class="form-control" id="password" name = "password" required>
                 </div>
         
@@ -47,5 +47,5 @@
 {% endblock %}
 
 {% block script %}
-    <script src=static/js/form_login.js></script>
+    <script src=static/js/authorization/form_login.js></script>
 {% endblock %}
