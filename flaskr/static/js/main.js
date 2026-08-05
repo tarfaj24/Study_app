@@ -1,6 +1,6 @@
 import { getPage } from './containers.js' ;
 import { navigate, loadPage } from './navigating.js';
-import { pomodoro } from './pages_js/pomodoro.js';
+import { pomodoro } from './page_specific_js/pomodoro.js';
 
 
 

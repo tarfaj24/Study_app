@@ -1,45 +1,49 @@
 import { getPage } from './containers.js' ;
-import { pomodoro } from './pages_js/pomodoro.js' ;
+import { pomodoro, destroyPomodoro } from './page_specific_js/pomodoro.js' ;
 
 export function loadPage(page){
     document.querySelector('#main_container').innerHTML = page;  
-    console.log('page is home')
+}
+
+function destroyPageJsByName(page){
+    switch (page){
+        case 'pomodoro':
+            destroyPomodoro();
+            break;
+    }
+}
+
+export function executePageJsByName(page){
+    console.log('executing: ', page)
+    switch (page){
+        case 'pomodoro':
+            pomodoro();
+            break;
+    }
 }
 
 export function navigate(){
     console.log('navigation-start')
     const tabs = document.querySelector('#main_nav');
     tabs.addEventListener('click', function(e){
-        if (e.target.id != window.location.pathname.slice(1)){
-            console.log(e.target.id)
-            switch (e.target.id){
-                case 'logo':
-                    console.log('home');
-                    history.pushState(null, null, '/home');
-                    loadPage(getPage('home'));
-                    break;
-
-                case 'home':
-                    console.log('home');
-                    history.pushState(null, null, '/home');
-                    loadPage(getPage('home'));
-                    break;
-
-                case 'page_1':
-                    console.log('page_1');
-                    history.pushState(null, null, '/page_1');
-                    loadPage(getPage('page_1'));
-                    break;
-
-                case 'pomodoro':
-                    console.log('pomodoro');
-                    history.pushState(null, null, '/pomodoro');
-                    loadPage(getPage('pomodoro'));
-                    pomodoro();
-                    break;
-            }
+        const last_page_name = window.location.pathname.slice(1)
+        destroyPageJsByName(last_page_name);
+        let page_name = e.target.id;
+        console.log('current page is: ', page_name)
+        if (page_name != window.location.pathname.slice(1)){
+            if (page_name === 'logo'){
+                page_name = 'home';
+            }   
+            history.pushState(null, null, '/' + page_name);
+            loadPage(getPage(page_name));
+            executePageJsByName(page_name);
+            
         }
+            
+            
+            
+        
         
     })
-
 }
+
