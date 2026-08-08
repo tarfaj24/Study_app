@@ -1,12 +1,12 @@
-from flask import Blueprint, request, render_template, jsonify, session, redirect
+from flask import Blueprint, request, render_template, jsonify, session, redirect, current_app
 from functools import wraps
 from flaskr.validate import validate_password, validate_username
 from flaskr.errors import apology
 from flaskr.db import db
 from flaskr.models import User
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy import exc
-
+from sqlalchemy import exc, exists
+ 
 auth_bp = Blueprint("auth", __name__)
 
 def login_required(f):
@@ -17,36 +17,60 @@ def login_required(f):
         return redirect("/login")
     return inner
 
+def find_user_by_username(username):
+    try: 
+        row = db.session.execute(db.select(User).where(User.username == username)).scalar()
+        return row if row else None
+    except exc.OperationalError as e:
+        current_app.logger.exception(f"EXCEPTION OCCURED: {e}")
+        raise
+
+def username_exists(username):
+    try:
+        result = db.session.execute(db.select(exists().where(User.username == username))).scalar()
+        print(f"result is {result}")
+        return result
+    except exc.OperationalError:
+        raise
+
+def validate_credentials(username, password, pass_confirm):
+    if not username:
+        return apology("Please insert a valid username.")
+    
+    if not (password and pass_confirm):
+        return apology("Password field can't be empty.")
+
+    if not (validate_password(password) and validate_username(username)):
+        return apology("Invalid username or password.")
+    
+    if password != pass_confirm:
+        return apology("The passwords do not match")
+    
+    return None
+
+
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         data = request.get_json()
-
         username = data.get("username")
         password = data.get("password")
 
-        try: 
-            row = db.session.execute(db.select(User.password_hash, User.id).where(User.username == username)).first()
-            
-            
-            if row:
-                password_hash = row.password_hash
-                user_id = row.id
-                if not check_password_hash(password_hash, password):
-                    return jsonify({"error_message": "Invalid password.", "user_logged_in": False})
-                session.permanent = True
-                session["user_id"] = user_id
-                return jsonify({"user_logged_in": True})
-            else:
-                print("returning login.html")
-                return jsonify({"error_message": "Invalid username.", "user_logged_in": False})
-        except Exception as e:
-            print(e)
-            print("EXCEPTION OCCURED")
+        try:
+            user = find_user_by_username(username)
+        except exc.OperationalError:
             return jsonify({"error_message": "Couldnt load data.", "user_logged_in": False})
-            
 
+        if not user:
+            return jsonify({"error_message": "Invalid username.", "user_logged_in": False}) 
 
+        print(f"password_hash: {user.password_hash}")
+        if not check_password_hash(user.password_hash, password):
+            return jsonify({"error_message": "Invalid password.", "user_logged_in": False})
+
+        session.permanent = True
+        session["user_id"] = user.id
+        return jsonify({"user_logged_in": True})
     return render_template("login.html")
 
 @auth_bp.route("/register", methods=["GET", "POST"])
@@ -56,35 +80,24 @@ def register():
         password = request.form.get("password")
         pass_confirm = request.form.get("pass_confirm")
 
-        if not username:
-            return apology("Please insert a valid username.")
-
-        if not (password and pass_confirm):
-            return apology("Password field can't be empty.")
-
-        if not (validate_password(password) and validate_username(username)):
-            return apology("Invalid username or password.")
+        invalid_credential = validate_credentials(username, password, pass_confirm)
+        if (invalid_credential):
+            return invalid_credential
         
-        if password != pass_confirm:
-            return apology("The passwords do not match")
-
-        user = User(username = username, password_hash = generate_password_hash(password))
-
         try:
-            db.session.add(user)
+            db.session.add(User(username = username, password_hash = generate_password_hash(password)))
             db.session.commit()
         except exc.IntegrityError:
             return apology("Duplicate username.")
         return render_template("login.html")
-    
-    if (request.args.get("username")):
+
+    arg_username = request.args.get("username")
+    if (arg_username):
         try:
-            get_username = request.args.get("username")
-            result = db.session.execute(db.select(User.username).where(User.username == get_username)).first()
-            username_status = True if result else False
-            return jsonify({"username_status": username_status})
+            return jsonify({"username_status": username_exists(arg_username)})
         except exc.OperationalError:
-            raise Exception("Couldnt connect to database.")
+            raise
+        
     return render_template("register.html")
 
 @auth_bp.route("/logout")
