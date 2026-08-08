@@ -17,7 +17,7 @@ async function fetch_username_status(username){
 
     } catch (error){
       // window.location.replace('/server_error')
-      console.error(error)
+      console.error(error);
     }
   }
 }

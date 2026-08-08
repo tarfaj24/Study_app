@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from flaskr.db import db,init_db
 from flaskr.authorization import auth_bp
 from flaskr.errors import errors_bp
+from flaskr.note_creator import note_creator_bp
 from datetime import timedelta
 from flaskr.authorization import login_required
 from flaskr.models import User
@@ -18,11 +19,12 @@ def create_app():
     init_db(app)
     app.register_blueprint(auth_bp)
     app.register_blueprint(errors_bp)
+    app.register_blueprint(note_creator_bp)
 
     
 
     @app.route("/home")
-    @app.route("/page_1")
+    @app.route("/note_creator")
     @app.route("/pomodoro")
     @app.route("/")
     @login_required

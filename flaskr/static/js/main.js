@@ -1,6 +1,5 @@
 import { getPage } from './containers.js' ;
-import { navigate, loadPage } from './navigating.js';
-import { pomodoro } from './page_specific_js/pomodoro.js';
+import { navigate, loadPage, executePageJsByName} from './navigating.js';
 
 
 
@@ -15,10 +14,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
         console.log(typeof page_function)
         console.log('yes is in pages')
         loadPage(getPage(current_page));
+        executePageJsByName(current_page);
     }
     else{
         console.log('No isnt')
         loadPage(getPage('home'));
+        executePageJsByName('home');
     }
     navigate();
     });

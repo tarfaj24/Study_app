@@ -1,5 +1,6 @@
 import { getPage } from './containers.js' ;
 import { pomodoro, destroyPomodoro } from './page_specific_js/pomodoro.js' ;
+import { note_creator } from './page_specific_js/note_creator.js';
 
 export function loadPage(page){
     document.querySelector('#main_container').innerHTML = page;  
@@ -18,6 +19,9 @@ export function executePageJsByName(page){
     switch (page){
         case 'pomodoro':
             pomodoro();
+            break;
+        case 'note_creator':
+            note_creator();
             break;
     }
 }
