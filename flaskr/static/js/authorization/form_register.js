@@ -4,7 +4,7 @@ function hide_feedbacks(feedbacks){
     });
 }
 
-async function fetch_username_status(username){
+async function fetchUsernameStatus(username){
   if (username){
     try{
       const response = await fetch('/register?username=' + username);
@@ -16,45 +16,46 @@ async function fetch_username_status(username){
       return result.username_status
 
     } catch (error){
-      // window.location.replace('/server_error')
-      console.error(error);
+      window.location.replace('/server_error')
     }
   }
 }
 
-async function validate_username(username, feedbacks){
+async function getInvalidFeedback(){
   
-  username_in_db = await fetch_username_status(username.value);
+  if (username.value.length < 4){
+    return 'username-min-len'
+  }
+  if(username.value.length > 50){
+    return 'username-max-len'
+  }
+  
+  const usernameExists = await fetchUsernameStatus(username.value);
+  if (usernameExists){
+    return 'username-in-db'
+  }
+  return null
+}
 
+function displayInvalidField(dataFeedback){
+  username.setCustomValidity('Invalid field.');
+  document.querySelector(`[data-feedback="${dataFeedback}"]`).hidden = false;
+}
+
+async function validateUsername(username, feedbacks){
   hide_feedbacks(feedbacks);
   document.querySelector('.username_container').classList.add('was-validated');
 
-  valid_db_status = false;
-  valid_len = false;
+  invalidFeedback = await getInvalidFeedback()
   
-  if (username_in_db){
-    username.setCustomValidity('Invalid field.');
-    document.querySelector('[data-feedback="username-in-db"]').hidden = false;
-  }
-  else{
-    valid_db_status = true;
-  }
-
-  if (username.value.length < 4){
-    username.setCustomValidity('Invalid field.');
-    document.querySelector('[data-feedback="username-min-len"]').hidden = false;
-  }
-  else if(username.value.length > 50){
-    username.setCustomValidity('Invalid field.');
-    document.querySelector('[data-feedback="username-max-len"]').hidden = false;
-  }
-  else{
-    valid_len = true;
-  }
-
-  if (valid_len && valid_db_status){
+  if (!invalidFeedback){
     username.setCustomValidity('');
   }
+  else{
+    displayInvalidField(invalidFeedback);
+  }
+  
+  
 };
 
 function validate_password(password, feedbacks, confirm_pass, feedbacks_confirm_pass){
@@ -129,7 +130,7 @@ function main(){
   const invalid_feedback_confirm = document.querySelectorAll('[data-credential="pass_confirm"]');
 
   username.addEventListener('input', event => {
-    validate_username(username, invalid_feedback_username);
+    validateUsername(username, invalid_feedback_username);
   });
 
   password.addEventListener('input', event => {
@@ -146,7 +147,7 @@ function main(){
       event.stopPropagation();
       event.preventDefault();
       form.classList.add('was-validated');
-      validate_username(username, invalid_feedback_username);
+      validateUsername(username, invalid_feedback_username);
       validate_password(password, invalid_feedback_passsword, confirm_pass, invalid_feedback_confirm);
       validate_confirm_pass(confirm_pass, password, invalid_feedback_confirm);
     }

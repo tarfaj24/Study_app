@@ -20,6 +20,6 @@ def apology(message, code=400):
 
     return render_template("apology.html", code=code, message=escape(message)), code
 
-@errors_bp.route("/server_error")     
-def server_error():
-    return apology("Server error couldn't load data.")
+@errors_bp.route("/error/database/connection")     
+def database_connection_error():
+    return apology("Database error couldn't connect to database.")

@@ -19,9 +19,11 @@ async function validateUser(username, password){
     return result.error_message
 
   } catch (error){
-    window.location.replace('/server_error')
+    window.location.replace('/error/database/connection')
   }
 }
+
+
 
 function main() {
     const usernameInput = document.querySelector('#username');
