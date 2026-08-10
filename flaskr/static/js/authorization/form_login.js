@@ -15,6 +15,7 @@ async function validateUser(username, password){
     console.log(result.error_message)
     if (result.user_logged_in){
       window.location.replace('/')
+      return null;
     }
     return result.error_message
 
@@ -32,9 +33,11 @@ function main() {
         event.preventDefault();
         event.stopPropagation();
         error_message = await validateUser(usernameInput.value, passwordInput.value);
-        error_element = document.querySelector('#error_message');
-        error_element.innerText = error_message;
-        error_element.hidden = false;
+        if (error_message){
+          error_element = document.querySelector('#error_message');
+          error_element.innerText = error_message;
+          error_element.hidden = false; 
+        }
         
     })
     

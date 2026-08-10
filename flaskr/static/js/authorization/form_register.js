@@ -1,4 +1,6 @@
-function hide_feedbacks(feedbacks){
+import { displayFetchError } from '../errors.js'
+
+function hideFeedbacks(feedbacks){
   feedbacks.forEach(element => {
       element.hidden = true;
     });
@@ -11,110 +13,123 @@ async function fetchUsernameStatus(username){
       if (!response.ok) {
         throw new Error(`Response status: ${response.status}`);
       }
-
       const result = await response.json();
-      return result.username_status
-
+      return result.usernameStatus
     } catch (error){
-      window.location.replace('/server_error')
+      console.error(`Error in fetchUsernameStatus:${error.message}`);
+      throw error;
     }
   }
 }
 
-async function getInvalidFeedback(){
+async function getInvalidFeedbackUsername(username){
   
-  if (username.value.length < 4){
+  if (username.length < 4){
     return 'username-min-len'
   }
-  if(username.value.length > 50){
+  if(username.length > 50){
     return 'username-max-len'
   }
-  
-  const usernameExists = await fetchUsernameStatus(username.value);
+
+  const usernameExists = await fetchUsernameStatus(username);
+  console.log('username exists: ',usernameExists)
   if (usernameExists){
     return 'username-in-db'
   }
   return null
 }
 
-function displayInvalidField(dataFeedback){
-  username.setCustomValidity('Invalid field.');
+function getInvalidFeedbacksPassword(password){
+  const invalidFeedbacks = [];
+  if (password.length < 8){
+    invalidFeedbacks.push('password-min-len');
+  }
+  if(password.length > 50){
+    invalidFeedbacks.push('password-max-len');
+  }
+  if (!(/[a-zA-Z]/.test(password))){
+    invalidFeedbacks.push('password-alpha');
+  }
+  if (!(/[0-9]/.test(password))){
+    invalidFeedbacks.push('password-numeric');
+  }
+  return invalidFeedbacks
+}
+
+function getInvalidFeedbacksConfirmPassword(passwordElement, confirmPassword){
+  const invalidFeedbacks = [];
+  const password = passwordElement.value;
+  if (confirmPassword != password){
+    invalidFeedbacks.push('no-match') 
+  }
+  if(!(passwordElement.checkValidity())){
+    invalidFeedbacks.push('password-invalid');
+  }
+  return invalidFeedbacks;
+
+}
+
+function displayInvalidField(credentialElement, dataFeedback){
+  credentialElement.setCustomValidity('Invalid field.');
   document.querySelector(`[data-feedback="${dataFeedback}"]`).hidden = false;
 }
 
-async function validateUsername(username, feedbacks){
-  hide_feedbacks(feedbacks);
+async function validateUsername(usernameElement, feedbacks){
+  hideFeedbacks(feedbacks);
   document.querySelector('.username_container').classList.add('was-validated');
+  try{
+    const invalidFeedback = await getInvalidFeedbackUsername(usernameElement.value)
 
-  invalidFeedback = await getInvalidFeedback()
-  
-  if (!invalidFeedback){
-    username.setCustomValidity('');
+    if (document.querySelector('#register_fetch_error'))
+    {
+      document.querySelector('#register_fetch_error').remove();
+    }
+
+    if (!invalidFeedback){
+      usernameElement.setCustomValidity('');
+    }
+    else{
+      displayInvalidField(usernameElement, invalidFeedback);
+    }
+  } catch(error){
+    console.log('fetch_error happend');
+    displayFetchError('Server couldn\'t load data.', document.querySelector('.pass_confirm_container'), 'register_fetch_error');
+    throw error;
   }
-  else{
-    displayInvalidField(invalidFeedback);
-  }
-  
-  
+
+
 };
 
-function validate_password(password, feedbacks, confirm_pass, feedbacks_confirm_pass){
-  hide_feedbacks(feedbacks);
+function validatePassword(passwordElement, feedbacks, confirmPassElement, feedbacksConfirmPassword){
+  hideFeedbacks(feedbacks);
   document.querySelector('.password_container').classList.add('was-validated');
-  let has_letter = false;
-  let has_number = false;
-  let valid_len = false;
-  if (password.value.length < 8){
-    password.setCustomValidity('Invalid field.');
-    document.querySelector('[data-feedback="password-min-len"]').hidden = false;
-  }
-  else if(password.value.length > 50){
-    password.setCustomValidity('Invalid field.');
-    document.querySelector('[data-feedback="password-max-len"]').hidden = false;
-  }
-  else{
-    valid_len = true;
-  }
-  
-  if (!(/[a-zA-Z]/.test(password.value))){
-    password.setCustomValidity('Invalid field.');
-    document.querySelector('[data-feedback="password-alpha"]').hidden = false;
-  }
-  else{
-    has_letter = true;
-  }
-  if (!(/[0-9]/.test(password.value))){
-    password.setCustomValidity('Invalid field.');
-    document.querySelector('[data-feedback="password-numeric"]').hidden = false;
-  }
-  else{
-    has_number = true;
-  }
 
-  if (has_letter && has_number && valid_len){
-    password.setCustomValidity('');
-  }
-  validate_confirm_pass(confirm_pass, password, feedbacks_confirm_pass);
-};
-
-function validate_confirm_pass(confirm_pass, password, feedbacks){
-  document.querySelector('.pass_confirm_container').classList.add('was-validated');
-  hide_feedbacks(feedbacks);
-  console.log(confirm_pass.value,"next to:", password.value)
-  if (confirm_pass.value != password.value){
-    confirm_pass.setCustomValidity('Invalid field.');
-    document.querySelector('[data-feedback="no-match"]').hidden = false;
-    if(!(password.checkValidity())){
-      document.querySelector('[data-feedback="password-invalid"]').hidden = true;
+  const invalidFeedbacks = getInvalidFeedbacksPassword(passwordElement.value)
+  if (invalidFeedbacks.length != 0){
+    for (const invalidFeedback of invalidFeedbacks){
+      displayInvalidField(passwordElement, invalidFeedback)
     }
   }
-  else if(!(password.checkValidity())){
-    document.querySelector('[data-feedback="no-match"]').hidden = true;
-    confirm_pass.setCustomValidity('Invalid field.');
-    document.querySelector('[data-feedback="password-invalid"]').hidden = false;
+  else{
+    console.log("is set to valid")
+    passwordElement.setCustomValidity('');
+  }
+  validateConfirmPassword(confirmPassElement, passwordElement, feedbacksConfirmPassword);
+};
+
+function validateConfirmPassword(confirmPassElement, passwordElement, feedbacks){
+  hideFeedbacks(feedbacks);
+  document.querySelector('.pass_confirm_container').classList.add('was-validated');
+
+  const invalidFeedbacks = getInvalidFeedbacksConfirmPassword(passwordElement, confirmPassElement.value)
+
+  if (invalidFeedbacks.length != 0){
+    for (const invalidFeedback of invalidFeedbacks){
+      displayInvalidField(confirmPassElement, invalidFeedback)
+    }
   }
   else{
-    confirm_pass.setCustomValidity('');
+    confirmPassElement.setCustomValidity('');
   }
 };
 
@@ -122,36 +137,36 @@ function validate_confirm_pass(confirm_pass, password, feedbacks){
 function main(){
 
   const form = document.querySelector('.needs-validation');
-  const username = document.querySelector('#username');
-  const password = document.querySelector('#password');
-  const confirm_pass = document.querySelector('#pass_confirm');
-  const invalid_feedback_username = document.querySelectorAll('[data-credential="username"]');
-  const invalid_feedback_passsword = document.querySelectorAll('[data-credential="password"]');
-  const invalid_feedback_confirm = document.querySelectorAll('[data-credential="pass_confirm"]');
+  const usernameElement = document.querySelector('#username');
+  const passwordElement = document.querySelector('#password');
+  const confirmPasswordElement = document.querySelector('#pass_confirm');
+  const invalidFeedbackUsername = document.querySelectorAll('[data-credential="username"]');
+  const invalidFeedbackPasssword = document.querySelectorAll('[data-credential="password"]');
+  const invalidFeedbackConfirm = document.querySelectorAll('[data-credential="pass_confirm"]');
 
-  username.addEventListener('input', event => {
-    validateUsername(username, invalid_feedback_username);
+
+  usernameElement.addEventListener('input', () => {
+    validateUsername(usernameElement, invalidFeedbackUsername);
   });
 
-  password.addEventListener('input', event => {
-    validate_password(password, invalid_feedback_passsword, confirm_pass, invalid_feedback_confirm);
+  passwordElement.addEventListener('input', () => {
+    validatePassword(passwordElement, invalidFeedbackPasssword, confirmPasswordElement, invalidFeedbackConfirm);
   });
 
-  confirm_pass.addEventListener('input', event => {
-    validate_confirm_pass(confirm_pass, password, invalid_feedback_confirm);
+  confirmPasswordElement.addEventListener('input', () => {
+    validateConfirmPassword(confirmPasswordElement, passwordElement, invalidFeedbackConfirm);
   });
 
   
-  form.addEventListener('submit', event => {
-    if (!(username.checkValidity()) || !(password.checkValidity()) || !(confirm_pass.checkValidity())){
+  form.addEventListener('submit', async(event) => {
+    if (!(usernameElement.checkValidity()) || !(passwordElement.checkValidity()) || !(confirmPasswordElement.checkValidity())){
       event.stopPropagation();
       event.preventDefault();
       form.classList.add('was-validated');
-      validateUsername(username, invalid_feedback_username);
-      validate_password(password, invalid_feedback_passsword, confirm_pass, invalid_feedback_confirm);
-      validate_confirm_pass(confirm_pass, password, invalid_feedback_confirm);
+      await validateUsername(usernameElement, invalidFeedbackUsername);
+      validatePassword(passwordElement, invalidFeedbackPasssword, confirmPasswordElement, invalidFeedbackConfirm);
+      validateConfirmPassword(confirmPasswordElement, passwordElement, invalidFeedbackConfirm);
     }
-    
   });
 }; 
 

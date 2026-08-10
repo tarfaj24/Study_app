@@ -28,7 +28,6 @@ def find_user_by_username(username):
 def username_exists(username):
     try:
         result = db.session.execute(db.select(exists().where(User.username == username))).scalar()
-        print(f"result is {result}")
         return result
     except exc.OperationalError:
         raise
@@ -94,7 +93,7 @@ def register():
     arg_username = request.args.get("username")
     if (arg_username):
         try:
-            return jsonify({"username_status": username_exists(arg_username)})
+            return jsonify({"usernameStatus": username_exists(arg_username)})
         except exc.OperationalError:
             raise
         
