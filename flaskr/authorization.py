@@ -48,19 +48,27 @@ def validate_credentials(username, password, pass_confirm):
     return None
 
 
-@auth_bp.route("/login", methods=["GET", "POST"])
+@auth_bp.route("/login", methods = ["GET", "POST"])
 def login():
     if request.method == "POST":
+        current_app.logger.info('post request recieved')
         data = request.get_json()
+        current_app.logger.info('json recieved')
         username = data.get("username")
         password = data.get("password")
 
+        print(f'recieved json username: {username}, password: {password}')
+
         try:
+            current_app.logger.info('searching user')
             user = find_user_by_username(username)
         except exc.OperationalError:
+            current_app.logger.info('couldnt load data returning json')
             return jsonify({"error_message": "Couldnt load data.", "user_logged_in": False})
-
+        
+        current_app.logger.info(f'user is: {user}')
         if not user:
+            current_app.logger.info(f'returning user equal to none')
             return jsonify({"error_message": "Invalid username.", "user_logged_in": False}) 
 
         print(f"password_hash: {user.password_hash}")

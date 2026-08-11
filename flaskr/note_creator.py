@@ -5,7 +5,6 @@ note_creator_bp = Blueprint("note_creator_bp", __name__)
 @note_creator_bp.route("/api/analogy/generate", methods = ["GET", "POST"])
 def get_api_analogy():
     if request.method == "POST":
-
         data = request.get_json()
         analogy_input = data.get("analogy_input")
         print("\n",f"analogy_input: {analogy_input}", "\n")

@@ -1,3 +1,5 @@
+import { displayError } from '../errors.js'
+
 async function validateUser(username, password){
   try{
     const response = await fetch('/login', {
@@ -17,10 +19,12 @@ async function validateUser(username, password){
       window.location.replace('/')
       return null;
     }
+    console.log(`returning: ${result.error_message}`);
     return result.error_message
 
   } catch (error){
-    window.location.replace('/error/database/connection')
+    console.error(`Error: ${error.error_message}`)
+    throw error;
   }
 }
 
@@ -29,15 +33,21 @@ async function validateUser(username, password){
 function main() {
     const usernameInput = document.querySelector('#username');
     const passwordInput = document.querySelector('#password');
-    document.addEventListener('submit', async event => {
+    document.addEventListener('submit', async(event) => {
         event.preventDefault();
         event.stopPropagation();
-        error_message = await validateUser(usernameInput.value, passwordInput.value);
-        if (error_message){
-          error_element = document.querySelector('#error_message');
-          error_element.innerText = error_message;
-          error_element.hidden = false; 
+        try{
+          console.log('trying to validate user');
+          const error_message = await validateUser(usernameInput.value, passwordInput.value);
+          if (error_message){
+            displayError(error_message, document.querySelector('#password_form_container'),'error_message');
+          }
+        } catch(error){
+          displayError('Server couldn\t load data.',document.querySelector('#password_form_container'),'fetch_error');
         }
+    
+        
+        
         
     })
     

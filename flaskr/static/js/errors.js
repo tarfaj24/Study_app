@@ -1,5 +1,6 @@
-export function displayFetchError(errorText, parentElement, id){
+export function displayError(errorText, parentElement, id){
     if (document.querySelector(`#${id}`)){
+        document.querySelector(`#${id}`).innerText = errorText;
         return
     }
     const errorElement = document.createElement('div');

@@ -1,4 +1,4 @@
-import { displayFetchError } from '../errors.js'
+import { displayError } from '../errors.js'
 
 function hideFeedbacks(feedbacks){
   feedbacks.forEach(element => {
@@ -93,7 +93,7 @@ async function validateUsername(usernameElement, feedbacks){
     }
   } catch(error){
     console.log('fetch_error happend');
-    displayFetchError('Server couldn\'t load data.', document.querySelector('.pass_confirm_container'), 'register_fetch_error');
+    displayError('Server couldn\'t load data.', document.querySelector('.pass_confirm_container'), 'register_fetch_error');
     throw error;
   }
 

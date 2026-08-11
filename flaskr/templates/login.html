@@ -25,20 +25,15 @@
     <main>
         <div class="container">
             <form action="/login" method="POST" class = "needs-validation" novalidate >
-                <div class="mb-3">
+                <div class="mb-3" id = 'username_form_container'>
                     <label for="username" class="form-label">Username</label>
                     <input type="text" class="form-control" id="username" aria-describedby="username" name = "username" autocomplete="off" autocapitalize="off" required>
                 </div>
-                <div class="mb-3">
+                <div class="mb-3" id = 'password_form_container'>
                     <label for="password" class="form-label" autocomplete="off">Password</label>
                     <input type="password" class="form-control" id="password" name = "password" required>
                 </div>
         
-                <div class = "text-danger" id="error_message" hidden></div>
-        
-                
-                
-    
                 <button type="submit" class="btn btn-primary">Login</button>
             </form>
 
@@ -47,5 +42,5 @@
 {% endblock %}
 
 {% block script %}
-    <script src=static/js/authorization/form_login.js></script>
+    <script type="module" src=static/js/authorization/form_login.js></script>
 {% endblock %}
